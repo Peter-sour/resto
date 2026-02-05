@@ -111,6 +111,30 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // REVISI: Logika scroll yang lebih robust untuk mobile & desktop
+  const handleLinkClick = (e, href) => {
+    e.preventDefault();
+    setIsOpen(false); // Tutup menu mobile dulu
+
+    const targetId = href.replace('#', '');
+    const elem = document.getElementById(targetId);
+    
+    if (elem) {
+      // Tambahkan sedikit delay agar state 'isOpen' selesai diproses (menu menutup)
+      // baru kemudian browser menghitung posisi scroll yang akurat.
+      setTimeout(() => {
+        const offset = 80; // Sesuaikan dengan tinggi navbar
+        const elementPosition = elem.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth"
+        });
+      }, 50);
+    }
+  };
+
   const navLinks = [
     { name: 'Home', href: '#home' },
     { name: 'Tentang', href: '#about' },
@@ -130,11 +154,20 @@ const Navbar = () => {
           {/* Desktop Nav */}
           <div className="hidden md:flex gap-8 lg:gap-10 items-center">
             {navLinks.map((link) => (
-              <a key={link.name} href={link.href} className="text-xs font-bold text-orange-900/70 hover:text-pink-500 transition-colors uppercase tracking-widest">
+              <a 
+                key={link.name} 
+                href={link.href} 
+                onClick={(e) => handleLinkClick(e, link.href)}
+                className="text-xs font-bold text-orange-900/70 hover:text-pink-500 transition-colors uppercase tracking-widest"
+              >
                 {link.name}
               </a>
             ))}
-            <a href="#visit" className="bg-orange-900 text-white px-6 py-2.5 rounded-full text-xs font-bold hover:bg-pink-500 transition-all shadow-md active:scale-95 uppercase tracking-wider">
+            <a 
+              href="#visit" 
+              onClick={(e) => handleLinkClick(e, '#visit')}
+              className="bg-orange-900 text-white px-6 py-2.5 rounded-full text-xs font-bold hover:bg-pink-500 transition-all shadow-md active:scale-95 uppercase tracking-wider"
+            >
               Reservasi
             </a>
           </div>
@@ -157,11 +190,20 @@ const Navbar = () => {
           >
             <div className="flex flex-col gap-6 p-8 items-center">
               {navLinks.map((link) => (
-                <a key={link.name} href={link.href} onClick={() => setIsOpen(false)} className="text-2xl font-serif text-orange-900">
+                <a 
+                  key={link.name} 
+                  href={link.href} 
+                  onClick={(e) => handleLinkClick(e, link.href)} 
+                  className="text-2xl font-serif text-orange-900"
+                >
                   {link.name}
                 </a>
               ))}
-              <a href="#visit" onClick={() => setIsOpen(false)} className="w-full text-center bg-orange-900 text-white py-4 rounded-2xl font-bold uppercase tracking-widest">
+              <a 
+                href="#visit" 
+                onClick={(e) => handleLinkClick(e, '#visit')} 
+                className="w-full text-center bg-orange-900 text-white py-4 rounded-2xl font-bold uppercase tracking-widest"
+              >
                 Reservasi Meja
               </a>
             </div>
@@ -184,7 +226,7 @@ export default function App() {
       <Navbar />
 
       {/* --- HERO SECTION --- */}
-      <section id="home" className="relative min-h-[90vh] md:min-h-screen flex items-center pt-24 pb-12 overflow-hidden">
+      <section id="home" className="relative min-h-[90vh] md:min-h-screen flex items-center pt-24 pb-12 overflow-hidden scroll-mt-24">
         <div className="absolute top-10 right-[-20%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-pink-200/20 rounded-full blur-[80px] md:blur-[120px]" />
         <div className="absolute bottom-10 left-[-10%] w-[200px] md:w-[300px] h-[200px] md:h-[300px] bg-orange-200/20 rounded-full blur-[70px] md:blur-[100px]" />
 
@@ -258,7 +300,7 @@ export default function App() {
       </section>
 
       {/* --- BENTO ABOUT --- */}
-      <section id="about" className="py-20 md:py-32 px-4 md:px-6">
+      <section id="about" className="py-20 md:py-32 px-4 md:px-6 scroll-mt-24">
         <div className="max-w-7xl mx-auto">
           <SectionHeader title="Filosofi Rasa Kami" subtitle="Kenapa Pinky?" />
           
@@ -325,7 +367,7 @@ export default function App() {
       </section>
 
       {/* --- MENU SECTION --- */}
-      <section id="menu" className="py-20 md:py-32 bg-white rounded-t-[3rem] md:rounded-t-[4rem]">
+      <section id="menu" className="py-20 md:py-32 bg-white rounded-t-[3rem] md:rounded-t-[4rem] scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-10 md:mb-16 gap-6">
             <div className="max-w-xl text-center lg:text-left">
@@ -354,7 +396,7 @@ export default function App() {
 
           <motion.div 
             layout 
-            className="flex overflow-x-auto lg:grid lg:grid-cols-3 gap-6 lg:gap-10 pb-8 lg:pb-0 no-scrollbar snap-x snap-mandatory px-2 lg:px-0"
+            className="flex overflow-x-auto lg:grid lg:grid-cols-3 gap-6 lg:gap-10 pb-8 lg:pb-0 no-scrollbar snap-x snap-mandatory px-2 lg:px-0 min-h-[400px] md:min-h-[600px]"
           >
             <AnimatePresence mode="popLayout">
               {filteredMenu.map((item) => (
@@ -395,7 +437,7 @@ export default function App() {
       </section>
 
       {/* --- KUNJUNGI KAMI (VISIT US) --- */}
-      <section id="visit" className="py-20 md:py-32 px-4 md:px-6">
+      <section id="visit" className="py-20 md:py-32 px-4 md:px-6 scroll-mt-24">
         <div className="max-w-7xl mx-auto">
           <SectionHeader title="Mampir & Rasakan Sendiri" subtitle="Kunjungi Kami" />
           
@@ -470,7 +512,7 @@ export default function App() {
                     </div>
                   </motion.div>
                 </div>
-                <div className="absolute bottom-6 md:bottom-10 left-6 md:left-10 right-6 md:right-10 flex justify-between items-end">
+                <div className="absolute bottom-6 md:bottom-10 left-6 md:left-10 right-6 md:left-10 flex justify-between items-end">
                    <div className="text-white">
                      <p className="text-[10px] uppercase tracking-widest opacity-60 mb-1 italic">Dapatkan Arahan</p>
                      <p className="font-serif italic text-base md:text-xl">Buka Google Maps</p>
@@ -508,10 +550,10 @@ export default function App() {
               <div>
                 <h5 className="font-bold text-orange-950 mb-6 uppercase tracking-widest text-[10px]">Navigasi</h5>
                 <ul className="space-y-4 text-sm text-orange-900/60 font-medium uppercase tracking-tighter">
-                  <li><a href="#home" className="hover:text-pink-500 transition-colors">Beranda</a></li>
-                  <li><a href="#about" className="hover:text-pink-500 transition-colors">Cerita</a></li>
-                  <li><a href="#menu" className="hover:text-pink-500 transition-colors">Menu</a></li>
-                  <li><a href="#visit" className="hover:text-pink-500 transition-colors">Lokasi</a></li>
+                  <li><a href="#home" onClick={(e) => handleLinkClick(e, '#home')} className="hover:text-pink-500 transition-colors">Beranda</a></li>
+                  <li><a href="#about" onClick={(e) => handleLinkClick(e, '#about')} className="hover:text-pink-500 transition-colors">Cerita</a></li>
+                  <li><a href="#menu" onClick={(e) => handleLinkClick(e, '#menu')} className="hover:text-pink-500 transition-colors">Menu</a></li>
+                  <li><a href="#visit" onClick={(e) => handleLinkClick(e, '#visit')} className="hover:text-pink-500 transition-colors">Lokasi</a></li>
                 </ul>
               </div>
               <div>
